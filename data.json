@@ -1,3 +1,23 @@
 {
-  "expenses": []
+  "expenses": [
+    {
+      "id": "mmua3vwons3pa2xojg",
+      "date": "2026-03-17",
+      "description": "ctr",
+      "category": "Food & Dining",
+      "amount": 200,
+      "paidBy": "Manu",
+      "split": [
+        "Manu",
+        "Bhargav",
+        "Keshav",
+        "Pradeep"
+      ],
+      "splitCount": 4,
+      "perPerson": 50,
+      "settled": false,
+      "notes": "coffee and tea",
+      "createdAt": "2026-03-17T07:16:24.264Z"
+    }
+  ]
 }
