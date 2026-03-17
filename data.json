@@ -18,6 +18,24 @@
       "settled": false,
       "notes": "coffee and tea",
       "createdAt": "2026-03-17T07:16:24.264Z"
+    },
+    {
+      "id": "mmua5pnwotl19jq51p",
+      "date": "2026-03-17",
+      "description": "mtr",
+      "category": "Food & Dining",
+      "amount": 5000,
+      "paidBy": "Bhargav",
+      "split": [
+        "Manu",
+        "Bhargav",
+        "Keshav"
+      ],
+      "splitCount": 3,
+      "perPerson": 1666.6666666666667,
+      "settled": false,
+      "notes": "diner",
+      "createdAt": "2026-03-17T07:17:49.484Z"
     }
   ]
 }
