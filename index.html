@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manu Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ░░ TOP APP BAR ░░ -->
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <div class="top-bar-left">
+      <div class="app-logo">
+        <span class="logo-m">M</span>
+      </div>
+      <div class="app-title-group">
+        <span class="app-title">Manu Tracker</span>
+        <span class="app-subtitle" id="syncStatus">Ready</span>
+      </div>
+    </div>
+    <div class="top-bar-right">
+      <button class="icon-btn" id="syncBtn" title="Sync with GitHub">
+        <span class="material-icons-round">sync</span>
+      </button>
+      <button class="icon-btn" id="settingsBtn" title="Settings">
+        <span class="material-icons-round">settings</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ░░ BOTTOM NAV ░░ -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-item active" data-tab="dashboard">
+    <span class="material-icons-round">dashboard</span>
+    <span>Dashboard</span>
+  </button>
+  <button class="nav-item" data-tab="expenses">
+    <span class="material-icons-round">receipt_long</span>
+    <span>Expenses</span>
+  </button>
+  <button class="nav-item" data-tab="settlement">
+    <span class="material-icons-round">balance</span>
+    <span>Settlement</span>
+  </button>
+</nav>
+
+<!-- ░░ MAIN CONTENT ░░ -->
+<main class="main-content">
+
+  <!-- ── DASHBOARD TAB ── -->
+  <section class="tab-section active" id="tab-dashboard">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon"><span class="material-icons-round">receipt</span></div>
+        <div class="kpi-body">
+          <div class="kpi-value" id="kpi-count">0</div>
+          <div class="kpi-label">Transactions</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-icon"><span class="material-icons-round">currency_rupee</span></div>
+        <div class="kpi-body">
+          <div class="kpi-value" id="kpi-total">₹0</div>
+          <div class="kpi-label">Total Billed</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-icon"><span class="material-icons-round">arrow_downward</span></div>
+        <div class="kpi-body">
+          <div class="kpi-value" id="kpi-owed">₹0</div>
+          <div class="kpi-label">Owed to Manu</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <div class="kpi-icon"><span class="material-icons-round">arrow_upward</span></div>
+        <div class="kpi-body">
+          <div class="kpi-value" id="kpi-owes">₹0</div>
+          <div class="kpi-label">Manu Owes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="card chart-card">
+        <div class="card-header">
+          <span class="material-icons-round">pie_chart</span>
+          Spending by Category
+        </div>
+        <div class="chart-wrap">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+      <div class="card chart-card">
+        <div class="card-header">
+          <span class="material-icons-round">bar_chart</span>
+          Balance Overview
+        </div>
+        <div class="chart-wrap">
+          <canvas id="balanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Expenses -->
+    <div class="card">
+      <div class="card-header">
+        <span class="material-icons-round">history</span>
+        Recent Expenses
+      </div>
+      <div id="recentList" class="recent-list"></div>
+    </div>
+  </section>
+
+  <!-- ── EXPENSES TAB ── -->
+  <section class="tab-section" id="tab-expenses">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-scroll">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="unsettled">Unsettled</button>
+        <button class="chip" data-filter="settled">Settled</button>
+        <div class="chip-divider"></div>
+        <select class="chip-select" id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="expensesList" class="expenses-list"></div>
+    <div id="expensesEmpty" class="empty-state hidden">
+      <span class="material-icons-round">receipt_long</span>
+      <p>No expenses yet.<br/>Tap + to add one!</p>
+    </div>
+  </section>
+
+  <!-- ── SETTLEMENT TAB ── -->
+  <section class="tab-section" id="tab-settlement">
+    <div class="settlement-header card">
+      <div class="card-header">
+        <span class="material-icons-round">balance</span>
+        Settlement Summary
+      </div>
+      <p class="settlement-note">Only <strong>unsettled</strong> expenses are counted. Manu-centric view only.</p>
+    </div>
+
+    <!-- Owed to Manu section -->
+    <div class="settlement-section-label label-green">
+      <span class="material-icons-round">arrow_circle_down</span>
+      Others owe Manu (Manu paid)
+    </div>
+    <div id="owedToManu" class="settlement-cards"></div>
+
+    <!-- Manu owes section -->
+    <div class="settlement-section-label label-red">
+      <span class="material-icons-round">arrow_circle_up</span>
+      Manu owes others (Someone else paid)
+    </div>
+    <div id="manuOwes" class="settlement-cards"></div>
+
+    <!-- Net position -->
+    <div class="card net-card" id="netCard">
+      <div class="card-header">
+        <span class="material-icons-round">calculate</span>
+        Net Position
+      </div>
+      <div id="netSummary" class="net-summary"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ░░ FAB ░░ -->
+<button class="fab" id="fabBtn" title="Add Expense">
+  <span class="material-icons-round">add</span>
+</button>
+
+<!-- ░░ ADD EXPENSE MODAL ░░ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="expenseModal">
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <span class="material-icons-round">add_circle</span>
+        New Expense
+      </h2>
+      <button class="icon-btn" id="closeModal">
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">📅 Date</label>
+        <input type="date" class="form-input" id="f-date"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">📝 Description</label>
+        <input type="text" class="form-input" id="f-desc" placeholder="e.g. Lunch at restaurant"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">🏷️ Category</label>
+        <select class="form-input" id="f-category"></select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">💰 Amount (₹)</label>
+        <input type="number" class="form-input" id="f-amount" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">👤 Paid By</label>
+        <div class="person-chips" id="paidByChips">
+          <button class="person-chip active" data-person="Manu">Manu</button>
+          <button class="person-chip" data-person="Bhargav">Bhargav</button>
+          <button class="person-chip" data-person="Keshav">Keshav</button>
+          <button class="person-chip" data-person="Pradeep">Pradeep</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">👥 Split Among</label>
+        <div class="split-checks" id="splitChecks">
+          <label class="split-check-item">
+            <input type="checkbox" value="Manu" checked/> Manu
+          </label>
+          <label class="split-check-item">
+            <input type="checkbox" value="Bhargav"/> Bhargav
+          </label>
+          <label class="split-check-item">
+            <input type="checkbox" value="Keshav"/> Keshav
+          </label>
+          <label class="split-check-item">
+            <input type="checkbox" value="Pradeep"/> Pradeep
+          </label>
+        </div>
+      </div>
+      <div class="split-preview" id="splitPreview"></div>
+      <div class="form-row">
+        <label class="form-label">📌 Notes (optional)</label>
+        <input type="text" class="form-input" id="f-notes" placeholder="Any notes…"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-text" id="cancelExpense">Cancel</button>
+      <button class="btn-filled" id="submitExpense">
+        <span class="material-icons-round">check</span>
+        Submit
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ SETTINGS MODAL ░░ -->
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="modal" id="settingsModal">
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <span class="material-icons-round">settings</span>
+        GitHub Settings
+      </h2>
+      <button class="icon-btn" id="closeSettings">
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-info card-tinted">
+        <span class="material-icons-round">info</span>
+        <p>Your expenses are saved as <code>data.json</code> in your GitHub repo. A Personal Access Token (PAT) is needed to write data.</p>
+      </div>
+      <div class="form-row">
+        <label class="form-label">GitHub Username / Org</label>
+        <input type="text" class="form-input" id="s-owner" placeholder="e.g. manu123"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Repository Name</label>
+        <input type="text" class="form-input" id="s-repo" placeholder="e.g. expense-tracker"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Personal Access Token (PAT)</label>
+        <input type="password" class="form-input" id="s-token" placeholder="ghp_xxxxxxxxxxxx"/>
+      </div>
+      <div class="settings-steps card-tinted">
+        <strong>How to get a PAT:</strong>
+        <ol>
+          <li>Go to <strong>github.com → Settings → Developer settings</strong></li>
+          <li>Click <strong>Personal access tokens → Tokens (classic)</strong></li>
+          <li>Generate new token → tick <strong>repo</strong> scope</li>
+          <li>Copy and paste it above</li>
+        </ol>
+      </div>
+      <div id="settingsStatus" class="settings-status hidden"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-text" id="cancelSettings">Cancel</button>
+      <button class="btn-outlined" id="testConnection">
+        <span class="material-icons-round">wifi</span>
+        Test
+      </button>
+      <button class="btn-filled" id="saveSettings">
+        <span class="material-icons-round">save</span>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ TOAST ░░ -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
